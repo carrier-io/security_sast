@@ -1,0 +1,17 @@
+<script src="{{ url_for('security_sast.static', filename='js/results/summary.js') }}"></script>
+<script src="{{ url_for('security_sast.static', filename='js/results/in_progress.js') }}"></script>
+<script src="{{ url_for('security_sast.static', filename='js/results/logs_updater.js') }}"></script>
+<script src="{{ url_for('security_sast.static', filename='js/results/findings_table.js') }}"></script>
+<script src="{{ url_for('security_sast.static', filename='js/results/artifacts.js') }}"></script>
+<script src="{{ url_for('security_sast.static', filename='js/app/modal.js') }}"></script>
+
+{{ template_slot('params_table_scripts') | safe }}
+{{ template_slot('integrations_security_sast_scripts') | safe }}
+
+<script>
+    $(document).on('vue_init', () => {
+        wait_for('integrations', securityModal.dataModel).then(obj =>
+            obj.set({{ test_data['test_config']['integrations'] | tojson }})
+        )
+    })
+</script>

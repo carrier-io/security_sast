@@ -1,0 +1,6 @@
+{
+  "name": "Carrier Security SAST RestAPI Plugin",
+  "version": "0.2",
+  "depends_on": ["shared", "projects", "tasks", "theme"],
+  "init_after": []
+}

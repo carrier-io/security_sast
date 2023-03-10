@@ -1,0 +1,159 @@
+{% set test_finished = test_data.test_status['percentage'] == 100 %}
+
+<div class="card card-12 overview">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-4">
+                <h3>
+                    <a class="btn-primary" href="{{ url_for('theme.route_section_subsection', section="security", subsection="sast") }}">
+                        <i class="icon__16x16 icon-arrow-left-bold__16"></i>
+                    </a>
+                    {{ test_data.test_name }}
+                </h3>
+            </div>
+            <div class="col-8">
+                <div class="d-flex justify-content-end">
+                    {% if test_finished %}
+                        <button class="btn btn-32 btn-secondary" id="re_run_test">
+                            <span class="fa fa-play"></span>
+                        </button>
+                        <button class="btn btn-secondary" data-toggle="modal" data-target="#showConfigModal" id="show_config_btn">
+                            Show config
+                        </button>
+                    {% else %}
+                        <button class="btn btn-danger">
+                            Stop test
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if test_finished %}
+        <div class="card-body " id="findings-small-cards">
+            <div class="row">
+                <div class="col">
+                    <div class="card card-sm card-gray">
+                        <div class="card-header" data-updatable-field="findings">{{ test_data.findings }}</div>
+                        <div class="card-body">new</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-sm card-red">
+                        <div class="card-header" data-updatable-field="critical">{{ test_data.critical }}</div>
+                        <div class="card-body">critical</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-sm card-orange">
+                        <div class="card-header" data-updatable-field="high">{{ test_data.high }}</div>
+                        <div class="card-body">high</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-sm card-yellow">
+                        <div class="card-header" data-updatable-field="medium">{{ test_data.medium }}</div>
+                        <div class="card-body">medium</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-sm card-green">
+                        <div class="card-header" data-updatable-field="low">{{ test_data.low }}</div>
+                        <div class="card-body">low</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-sm card-blue">
+                        <div class="card-header" data-updatable-field="info">{{ test_data.info }}</div>
+                        <div class="card-body">info</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="processing-table">
+                <div class="col">
+                    <div class="card card-sm-table">
+                        <div class="card-body d-flex justify-content-between">
+                            <table class="table-card-result">
+                                <tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">Started</td>
+                                    <td class="font-h5">{{ test_data.start_date }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">Ended</td>
+                                    <td class="font-h5">{{ test_data["scan_time"] }}</td>
+                                </tr>
+                            </table>
+                            <table class="table-card-result">
+                                <tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">scan type</td>
+                                    <td class="font-h5">{{ test_data.scan_type }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">Environment</td>
+                                    <td class="font-h5">{{ test_data['environment'] }}</td>
+                                </tr>
+                            </table>
+                            <table class="table-card-result">
+                                </tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">Valid</td>
+                                    <td class="font-h5" data-updatable-field="valid">{{ test_data.valid }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">false positives</td>
+                                    <td class="font-h5" data-updatable-field="false_positive">{{ test_data.false_positive }}</td>
+                                </tr>
+                            </table>
+                            <table class="table-card-result">
+                                <tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">Duration</td>
+                                    <td class="font-h5">{{ test_data["scan_duration"] }} s</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">Findings</td>
+                                    <td class="font-h5"data-updatable-field="findings">{{ test_data.findings }}</td>
+                                </tr>
+                            </table>
+                            <table class="table-card-result">
+                                <tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">ignored</td>
+                                    <td class="font-h5" data-updatable-field="ignored">{{ test_data.ignored }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500 font-h6 font-semibold">Scanners</td>
+                                    <td class="font-h5">
+                                        {{ test_data.test_config['integrations']['scanners'] | join(', ') }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <TestProgress
+            :test_status='{{ test_data.test_status | tojson }}'
+            :project_id="project_id"
+            :test_id="{{ test_data.id }}"
+        ></TestProgress>
+    {% endif %}
+</div>
+
+
+{% if test_finished %}
+    {% include 'security_sast:results/show_config.html' %}
+    {% include 'security_sast:results/findings_table.html' %}
+    {% with result_id=test_data.id %}
+        {% include 'security_sast:results/artifacts_table.html' %}
+    {% endwith %}
+
+
+{% else %}
+    <logsapp
+        :project_id="{{ test_data.project_id }}"
+        :report_id='{{ test_data.id }}'
+        instance_name="sast_logs"
+        @register="register"
+    ></logsapp>
+
+{% endif %}

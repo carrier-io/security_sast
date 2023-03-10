@@ -1,0 +1,43 @@
+#errors {
+    min-height: 150px
+}
+
+.space-progress {
+	border-radius: 4px;
+	background: rgba(43, 212, 141, 0.06);
+}
+
+.severity_status_item {
+  text-transform: uppercase;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  line-height: 16px !important;
+}
+
+.dropdown_multilevel li .colored-select-red {
+  color: #F32626;
+}
+
+.dropdown_multilevel li .colored-select-orange {
+  color: #E97912;
+}
+
+.dropdown_multilevel li .colored-select-yellow {
+  color: #DBC714;
+}
+
+.dropdown_multilevel li .colored-select-green {
+  color: #18B64D;
+}
+
+.dropdown_multilevel li .colored-select-blue {
+  color: #2F7DF1;
+}
+
+.dropdown_multilevel li .colored-select-darkblue {
+  color: #32325D;
+}
+
+.overview {
+  padding: 14px;
+}

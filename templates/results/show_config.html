@@ -1,0 +1,57 @@
+{% set test_config = test_data.test_config %}
+<div class="modal fixed-left fade shadow-sm" tabindex="-1" role="dialog" id="showConfigModal">
+    <div class="modal-dialog modal-dialog-aside" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row w-100">
+                    <div class="col">
+                        <h3 id="modal_title">Test Configuration</h3>
+                    </div>
+                    <div class="col-xs">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {{ template_slot("alert_bar", payload={
+                "alert_container_id": "alertShowConfig",
+                "max_alerts": 1,
+                "overlay_max_width": "1010px"
+            }) | safe }}
+
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group col-6">
+                        <h9>Test Name</h9>
+                        <p>
+                            <h13>Enter a name that describes the purpose of your test</h13>
+                        </p>
+                        <input readonly value="{{ test_config['name'] }}"
+                               type="text" id="test_name" class="form-control form-control-alternative">
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="form-group col-6">
+                        <h9>Test context/scope</h9>
+                        <p>
+                            <h13>Description</h13>
+                        </p>
+                        <input readonly value="{{ test_config['description'] }}"
+                               type="text" id="test_description" class="form-control form-control-alternative">
+                    </div>
+                </div>
+
+                {{ template_slot("params_table_content", payload={
+                    "caption": "Test Parameters",
+                    "default_params": test_config['test_parameters'],
+                    "disabled_names": test_config['test_parameters'] | map(attribute='name'),
+                    "modal_id": "showConfigModal",
+                    "hidden_columns": []
+                }) | safe }}
+
+                {{ template_slot("integrations_security_sast_content") | safe }}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,82 @@
+<div class="modal modal-base fixed-left fade shadow-sm" tabindex="-1" role="dialog" id="createApplicationTest">
+    <div class="modal-dialog modal-dialog-aside" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row w-100">
+                    <div class="col">
+                        <h2 id="modal_title">Add Code Test</h2>
+                    </div>
+                    <div class="col-xs ">
+                        <button type="button" class="btn ml-1 btn-projects" data-dismiss="modal"><i
+                                class="fas fa-file-alt"></i> Use template
+                        </button>
+                        <button type="button" class="btn ml-1 btn-projects" data-dismiss="modal"><i
+                                class="fas fa-file"></i> Save as template
+                        </button>
+                        <button type="button" class="btn ml-1 btn-secondary" data-dismiss="modal" aria-label="Close">
+                            Cancel
+                        </button>
+                        <button type="button" id="security_test_save" class="btn ml-1 btn-secondary">
+                            Save
+                        </button>
+                        <button type="button" id="security_test_save_and_run" class="btn ml-1 btn-basic">
+                            Save and start
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {{ template_slot("alert_bar", payload={
+                "alert_container_id": "alertCreateTest",
+                "max_alerts": 2,
+                "overlay_max_width": "1100px"
+            }) | safe }}
+
+
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <h9>Test Name</h9>
+                            <p>
+                                <h13>Enter a name that describes the purpose of your test</h13>
+                            </p>
+                            <input type="text" id="test_name" class="form-control form-control-alternative"
+                                   placeholder="Test Name">
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <h9>Test context/scope</h9>
+                            <p>
+                                <h13>Description</h13>
+                            </p>
+                            <input type="text" id="test_description" class="form-control form-control-alternative"
+                                   placeholder="Some data">
+                        </div>
+
+                    </div>
+                    <div class="col">
+                        {{ template_slot("sources_content", payload={
+                            "chapters": ["git", "artifact", "local", "container"],
+                            "container_id": 'source_card'
+                        }) | safe }}
+                    </div>
+                </div>
+
+                {{ template_slot("params_table_content", payload={
+                    "caption": "Test Parameters",
+                    "default_params": [
+                        {"name": "Scan location", "default": "Carrier default config", "type": "String", "description": "Data"},
+                    ],
+                    "disabled_names": ("Scan location"),
+                    "modal_id": "security",
+                    "hidden_columns": []
+                }) | safe }}
+
+                {{ template_slot("integrations_security_sast_content") | safe }}
+
+                {{ template_slot("security_scheduling_test_create_content") | safe }}
+            </div>
+        </div>
+    </div>
+</div>

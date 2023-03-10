@@ -1,0 +1,91 @@
+<Table-Card
+    @register="register"
+    instance_name="table_thresholds"
+
+    header='Thresholds'
+    :table_attributes="{
+        'data-url': '/api/v1/security_sast/thresholds/{{ tools.session_project.get() }}',
+        'data-page-size': 5,
+        id: 'thresholds_table'
+    }"
+    container_classes="h-100"
+>
+    <template #actions>
+        <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-secondary btn-icon btn-icon__purple mr-2"
+                data-toggle="modal" data-target="#threshold_modal"
+            >
+                <i class="icon__18x18 icon-create-element"></i>
+            </button>
+            <button type="button" class="btn btn-secondary btn-icon btn-icon__purple mr-2"><i
+                    class="icon__18x18 icon-delete"></i>
+            </button>
+        </div>
+    </template>
+    <template #table_headers>
+        <th scope="col" data-checkbox="true"></th>
+        <th data-visible="false" data-field="id">index</th>
+        <th scope="col" data-sortable="true" data-field="test_name">Test Name</th>
+        <th scope="col" data-sortable="true" data-field="test_scope">Test Scope</th>
+        <th scope="col" data-sortable="true" data-field="params" data-formatter="threshold_formatters.rules">
+            Thresholds
+        </th>
+        <th scope="col"
+        data-align="right"
+        data-events="threshold_formatters.action_events"
+        data-formatter="threshold_formatters.actions"
+        data-width="100" data-width-unit="px"
+    >
+        Actions
+    </th>
+    </template>
+</Table-Card>
+<Threshold-Modal
+    @register="register"
+    instance_name="threshold_modal"
+    threshold_params_id="threshold_modal_tresh_params"
+    modal_id="threshold_modal"
+    tests_table_component_name="table_tests"
+    thresholds_table_component_name="table_thresholds"
+>
+    <template #params_table>
+        {{ template_slot("thresholds_params_content", payload={
+        "caption": "THRESHOLDS",
+        "default_params": [
+            {
+                "key": "default", 
+                "name": "Critical",
+                "comparison": "eq",
+            },
+            {
+                "key": "default", 
+                "name": "High",
+                "comparison": "eq",
+            },
+            {
+                "key": "default", 
+                "name": "Medium",
+                "comparison": "eq",
+            },
+            {
+                "key": "default", 
+                "name": "Low",
+                "comparison": "eq",
+            },
+            {
+                "key": "default", 
+                "name": "Info",
+                "comparison": "eq",
+            },
+            {
+                "key": "default", 
+                "name": "Errors", 
+                "comparison": "eq",
+            },
+        ],
+        "disabled_keys": ("default"),
+        "disabled_columns": ["threshold"],
+        "modal_id": "threshold_modal",
+        }) | safe }}
+    </template>
+</Threshold-Modal>
