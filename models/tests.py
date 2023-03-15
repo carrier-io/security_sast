@@ -261,8 +261,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
             return dusty_config
         #
         job_type = "sast"
-        # container = f"getcarrier/{job_type}:{CURRENT_RELEASE}"
-        container = f"getcarrier/sast_local"
+        container = f"getcarrier/{job_type}:latest"
         parameters = {
             "cmd": f"run -b centry:{job_type}_{self.test_uid} -s {job_type}",
             "GALLOPER_URL": secrets_tools.unsecret(
