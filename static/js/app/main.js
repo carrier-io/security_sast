@@ -1,6 +1,6 @@
 var tableFormatters = {
     durationFormatter(value, row, index){
-        return value + 's'
+        return value ? value + 's' : "-"
     },
 
     date_formatter(value) {
@@ -78,9 +78,10 @@ var tableFormatters = {
         
     </div>`
     },
-    tests_tools(value, row, index) {
-        // todo: fix
-        return Object.keys(value?.scanners || {})
+    tests_tools(value) {
+        return Object.keys(value?.scanners || {}).reduce(function(acc, curr){
+            return acc + `<img class="mr-1" src="/security_sast/static/assets/ico/${curr}.svg" width="20">`
+        }, '')
     },
     source_type(value, row, index){
         return value?.name.split('_')[0]?.toUpperCase()
