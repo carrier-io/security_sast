@@ -32,6 +32,18 @@ const reRunTest = () => {
         }
     })
 }
+
+const scanners_formatters = () => {
+    value = $('#scanners').text()
+    scanners = value.split(', ').map(val => val.trim())
+    if (scanners.length>0){
+        result = scanners.reduce(function(acc, curr){
+            return acc + `<img class="mr-1" alt="${curr}" src="/security_sast/static/assets/ico/${curr}.svg" width="20">`
+        }, '')
+        $('#scanners').html(result)
+    }
+}
+
 $(document).on('vue_init', () => {
     $('#show_config_btn').on('click', () => {
         $('#showConfigModal button').attr('disabled', true)
@@ -43,4 +55,5 @@ $(document).on('vue_init', () => {
 
     $('#re_run_test').on('click', reRunTest)
     $( document ).on( 'updateSummaryEvent', updateSummary);
+    scanners_formatters()
 })

@@ -7,11 +7,16 @@
 
 {{ template_slot('params_table_scripts') | safe }}
 {{ template_slot('integrations_security_sast_scripts') | safe }}
+{{ template_slot('sources_scripts') | safe }}
 
 <script>
     $(document).on('vue_init', () => {
         wait_for('integrations', securityModal.dataModel).then(obj =>
             obj.set({{ test_data['test_config']['integrations'] | tojson }})
-        )
+        );
+        
+        wait_for('source', securityModal.dataModel).then(obj =>
+            obj.set({{ test_data['test_config']['source'] | tojson }})
+        );
     })
 </script>

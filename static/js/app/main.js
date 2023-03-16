@@ -1,6 +1,6 @@
 var tableFormatters = {
     durationFormatter(value, row, index){
-        return value ? value + 's' : "-"
+        return value ? value : "-"
     },
 
     date_formatter(value) {
@@ -324,5 +324,20 @@ $(document).on('vue_init', () => {
             }
         })
 
+    })
+
+    socket.on("test_finished", data => {
+        result_id = data['id']
+        $('#results_table').bootstrapTable('updateByUniqueId', {
+            id: result_id,
+            row: {
+                'findings': data['findings'],
+                'false_positive': data['false_positive'],
+                'scan_duration': data['scan_duration'],
+                'excluded': data['excluded'],
+                'info': data['info'],
+                'tags': data['tags'],
+            }
+        })
     })
 })

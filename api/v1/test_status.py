@@ -47,6 +47,9 @@ class API(Resource):
 
             write_test_run_logs_to_minio_bucket(test)
 
+        if test_status['percentage'] == 100:
+            self.sio.emit('test_finished', test.to_json())
+        
         return make_response({"message": f"Status for test_id={test_id} of project_id: {project_id} updated"}, 200)
 
 

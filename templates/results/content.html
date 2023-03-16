@@ -76,7 +76,7 @@
                             <table class="table-card-result">
                                 <tr>
                                     <td class="text-gray-500 font-h6 font-semibold">Started</td>
-                                    <td class="font-h5">{{ test_data.start_date }}</td>
+                                    <td class="font-h5">{{ test_data['start_date'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-gray-500 font-h6 font-semibold">Ended</td>
@@ -120,7 +120,7 @@
                                 </tr>
                                 <tr>
                                     <td class="text-gray-500 font-h6 font-semibold">Scanners</td>
-                                    <td class="font-h5">
+                                    <td class="font-h5" id="scanners">
                                         {{ test_data.test_config['integrations']['scanners'] | join(', ') }}
                                     </td>
                                 </tr>

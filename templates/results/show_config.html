@@ -20,33 +20,42 @@
                 "overlay_max_width": "1010px"
             }) | safe }}
 
-
             <div class="modal-body">
                 <div class="row">
-                    <div class="form-group col-6">
-                        <h9>Test Name</h9>
-                        <p>
-                            <h13>Enter a name that describes the purpose of your test</h13>
-                        </p>
-                        <input readonly value="{{ test_config['name'] }}"
-                               type="text" id="test_name" class="form-control form-control-alternative">
-                        <div class="invalid-feedback"></div>
+                    <div class="col">
+                        <div class="form-group">
+                            <h9>Test Name</h9>
+                            <p>
+                                <h13>Enter a name that describes the purpose of your test</h13>
+                            </p>
+                            <input disabled type="text" id="test_name" class="form-control form-control-alternative"
+                                   placeholder="Test Name" value="{{ test_config['name'] }}">
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <h9>Test context/scope</h9>
+                            <p>
+                                <h13>Description</h13>
+                            </p>
+                            <input disabled type="text" id="test_description" class="form-control form-control-alternative"
+                                   placeholder="Some data" value="{{ test_config['description'] }}">
+                        </div>
                     </div>
-                    <div class="form-group col-6">
-                        <h9>Test context/scope</h9>
-                        <p>
-                            <h13>Description</h13>
-                        </p>
-                        <input readonly value="{{ test_config['description'] }}"
-                               type="text" id="test_description" class="form-control form-control-alternative">
+                    <div class="col">
+                        {{ template_slot("sources_content", payload={
+                            "chapters": ["git", "artifact", "local", "container"],
+                            "container_id": 'source_card'
+                        }) | safe }}
                     </div>
                 </div>
 
                 {{ template_slot("params_table_content", payload={
                     "caption": "Test Parameters",
-                    "default_params": test_config['test_parameters'],
-                    "disabled_names": test_config['test_parameters'] | map(attribute='name'),
-                    "modal_id": "showConfigModal",
+                    "default_params": [
+                        {"name": "Scan location", "default": "Carrier default config", "type": "String", "description": "Data"},
+                    ],
+                    "disabled_names": ("Scan location"),
+                    "modal_id": "security",
                     "hidden_columns": []
                 }) | safe }}
 
