@@ -85,6 +85,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
             global_sast_settings["max_concurrent_scanners"] = 1
             loki_settings = current_app.config["CONTEXT"].settings["loki"]
 
+            actions_config = {}
             if "git_" in self.source.get("name"):
                 actions_config = {
                     "git_clone": {
@@ -123,13 +124,6 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
                         "object": f"{self.build_id}.zip",
                         "target": "/tmp/code",
                         "delete": False
-                    }
-                }
-            
-            if self.source.get("name") == "container":
-                actions_config = {
-                    "container_metadata": {
-                        "image_name": self.source.get('image_name'),
                     }
                 }
             #

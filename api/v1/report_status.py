@@ -20,8 +20,13 @@ class API(Resource):
         return {"message": report.test_status["status"]}
 
     def put(self, project_id: int, report_id: int):
+        payload = request.json
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id=project_id)
         report = SecurityResultsSAST.query.filter_by(project_id=project.id, id=report_id).first()
+        
+        if not payload or "test_status" not in payload:
+            return {"message": f"Invalid payload"}, 400
+
         test_status = StatusField.parse_obj(request.json["test_status"])
         if test_status.description == "Failed update report":
             report.end_time = report.start_time

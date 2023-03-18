@@ -104,7 +104,6 @@ class API(Resource):
 
     def post(self, project_id: int, *args, **kvargs):
         finding_db = None
-        log.info(request.json)
         for finding in request.json:
             md5 = hashlib.md5(finding["details"].encode("utf-8")).hexdigest()
             hash_id = SecurityDetails.query.filter(
