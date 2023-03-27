@@ -66,7 +66,7 @@ class RPC:
         test.__dict__.update(test_params_existing_pd.dict())
         return run_test(test)
 
-    @web.rpc('security_sast_dast_job_type_by_uid')
+    @web.rpc('security_sast_job_type_by_uid')
     @rpc_tools.wrap_exceptions(RuntimeError)
     def job_type_by_uid(self, project_id: int, test_uid: str) -> Optional[str]:
         if SecurityTestsSAST.query.filter(

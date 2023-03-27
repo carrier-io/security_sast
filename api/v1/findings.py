@@ -118,7 +118,9 @@ class API(Resource):
             # finding['report_id'] = test_id
 
             entrypoints = ""
-            for endpoint in finding.get("endpoints", []):
+            findings_endpoints = finding.get("endpoints")
+            findings_endpoints = tuple() if not findings_endpoints else findings_endpoints
+            for endpoint in findings_endpoints:
                 if isinstance(endpoint, list):
                     entrypoints += "<br />".join(endpoint)
                 else:
