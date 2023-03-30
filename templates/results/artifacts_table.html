@@ -1,0 +1,32 @@
+{#{{ result_id }}#}
+<Table-Card
+        @register="register"
+        instance_name="table_artifacts"
+
+        header='Artifacts'
+        :table_attributes="{
+            id: 'artifacts',
+            'data-filter-control': 'true',
+            'data-url': '/api/v1/artifacts/security_results/{{ result_id }}/',
+            'data-query-params': 'testResultsQueryParams',
+            'data-pagination': 'true',
+            'data-page-list': '[10, 15, 20]',
+            'data-page-size': 10,
+            'data-side-pagination': 'client',
+            'data-pagination-parts': ['pageInfo', 'pageList', 'pageSize']
+        }"
+        container_classes="card-12"
+        :borders="true"
+>
+{#    <template #actions="{master}">#}
+{#    </template>#}
+    <template #table_headers>
+        <th scope="col" data-sortable="true" data-field="name" >Name</th>
+        <th scope="col" data-sortable="true" data-field="size">Size</th>
+        <th scope="col" data-sortable="true" data-field="actions"
+            data-align="right"
+            data-formatter=artifactActionsFormatter>Actions</th>
+    </template>
+</Table-Card>
+
+

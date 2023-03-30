@@ -1,0 +1,4 @@
+<link rel="stylesheet" href="{{ url_for('security_sast.static', filename='css/app.css') }}">
+{{ template_slot('params_table_styles') | safe }}
+{{ template_slot('thresholds_params_styles') | safe }}
+{{ template_slot("integrations_security_sast_styles") | safe }}

@@ -1,0 +1,111 @@
+<div class="p-3">
+    <div class="flex-container">
+        <div class="flex-item-2">
+            <Table-Card
+                @register="register"
+                instance_name="table_tests"
+
+                header='Code Tests'
+                :table_attributes="{
+                    'data-url': '/api/v1/security_sast/tests/{{ tools.session_project.get() }}',
+                    'data-page-size': 5,
+                    id: 'application_tests_table',
+                    'data-cache': 'false',
+                }"
+                container_classes="h-100"
+            >
+                <template #actions="{master}">
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary btn-icon btn-icon__purple mr-2" id="create_test"
+                                data-toggle="modal" data-target="#createApplicationTest">
+                                <i class="icon__18x18 icon-create-element"></i>
+                        </button>
+                        <button type="button" @click="master.table_action('refresh')" class="btn btn-secondary btn-icon btn-icon__purple mr-2" id="filter_test">
+                            <i class="icon__18x18 icon-refresh"></i>
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-icon btn-icon__purple mr-2" id="delete_test">
+                            <i class="icon__18x18 icon-delete"></i>
+                        </button>
+                    </div>
+                </template>
+                <template #table_headers>
+                    <th scope="col" data-checkbox="true"></th>
+                    <th scope="col" data-sortable="true" data-field="name">Name</th>
+                    <th scope="col" data-sortable="true" data-field="test_uid" data-visible="false">Uuid</th>
+                    <th scope="col" data-field="source"
+                        data-formatter="tableFormatters.source_type"
+                    >
+                        Source Type
+                    </th>
+
+                    <th scope="col" data-sortable="true" data-field="integrations"
+                        data-formatter="tableFormatters.tests_tools"
+                    >
+                        Tools
+                    </th>
+
+                    <th scope="col"
+                        data-align="right"
+                        data-events="tableFormatters.status_events"
+                        data-formatter="tableFormatters.tests_actions"
+                        data-width="100" data-width-unit="px"
+                    >
+                        Actions
+                    </th>
+                </template>
+            </Table-Card>
+        </div>
+        <div class="flex-item-2">
+            {% include 'security_sast:app/threshold.html' %}
+        </div>
+    </div>
+
+    <Table-Card
+            @register="register"
+            instance_name="table_results"
+            header='Results'
+            :table_attributes="{
+                'data-url': '/api/v1/security_sast/results/{{ tools.session_project.get() }}',
+                id: 'results_table',
+                'data-cache': 'false',
+            }"
+            container_classes="mt-3"
+    >
+        <template #actions="{master}">
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary btn-icon btn-icon__purple mr-2"
+                        @click="master.table_action('refresh')">
+                    <i class="icon__18x18 icon-refresh"></i>
+                </button>
+                <button type="button" class="btn btn-secondary btn-icon btn-icon__purple mr-2" id="delete_results"><i class="icon__18x18 icon-delete"></i></button>
+            </div>
+        </template>
+        <template #table_headers>
+            <th scope="col" data-checkbox="true"></th>
+            <th data-visible="false" data-field="id">index</th>
+            <th scope="col" data-sortable="true" data-field="test_name"
+                data-formatter="tableFormatters.reports_test_name_button">
+                Name
+            </th>
+            <th scope="col" data-formatter="tableFormatters.date_formatter" data-sortable="true" data-field="start_date">Start</th>
+            <th scope="col" data-formatter="tableFormatters.durationFormatter" data-sortable="true" data-field="scan_duration">Duration</th>
+            <th scope="col" data-sortable="true" data-field="findings">Findings</th>
+            <th scope="col" data-sortable="true" data-field="false_positive">False Positive</th>
+            <th scope="col" data-sortable="true" data-field="excluded">Excl</th>
+            <th scope="col" data-sortable="true" data-field="info">Info</th>
+            <th scope="col" data-sortable="true" data-field="tags" data-formatter="reportsTagFormatter">
+                Tag
+            </th>
+            <th scope="col" data-field="test_status.status"
+                data-formatter="tableFormatters.reports_status_formatter">
+                Status
+            </th>
+        </template>
+    </Table-Card>
+
+    {% include 'security_sast:app/modal.html' %}
+</div>
+
+
+
+
