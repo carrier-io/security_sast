@@ -16,7 +16,7 @@ from json import dumps
 from queue import Empty
 from typing import List, Union
 from sqlalchemy import Column, Integer, String, ARRAY, JSON, and_
-from tools import rpc_tools, db, db_tools, constants, secrets_tools
+from tools import rpc_tools, db, db_tools, constants, VaultClient
 from pylon.core.tools import log  # pylint: disable=E0611,E0401
 
 
@@ -78,6 +78,8 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
     def configure_execution_json(self, output="cc", execution=False, thresholds={}):
         """ Create configuration for execution """
         #
+        vault_client = VaultClient.from_project(self.project_id)
+        #
         if output == "dusty":
             #
             from flask import current_app
@@ -97,14 +99,14 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
 
                 if self.source.get("name") == "git_https":
                     if self.source.get("username") != "":
-                        actions_config["git_clone"]["username"] = secrets_tools.unsecret(self.source.get("username"), project_id=self.project_id)
+                        actions_config["git_clone"]["username"] = vault_client.unsecret(self.source.get("username"))
                     if self.source.get("password") != "":
-                        actions_config["git_clone"]["password"] = secrets_tools.unsecret(self.source.get("password"), project_id=self.project_id)
+                        actions_config["git_clone"]["password"] = vault_client.unsecret(self.source.get("password"))
 
                 if self.source.get("name") == "git_ssh":
-                    secret_value = secrets_tools.unsecret(self.source.get("private_key"), project_id=self.project_id)
+                    secret_value = vault_client.unsecret(self.source.get("private_key"))
                     actions_config["git_clone"]["key_data"] = secret_value.replace("\n", "|")
-                    actions_config["git_clone"]["password"] = secrets_tools.unsecret(self.source.get("password"), project_id=self.project_id)
+                    actions_config["git_clone"]["password"] = vault_client.unsecret(self.source.get("password"))
 
 
             if self.source.get("name") == "artifact":
@@ -114,9 +116,9 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
                         "object": self.source.get("file_meta", {}).get("filename", None),
                         "target": "/tmp/code",
                         "delete": False
-                    } 
+                    }
                 }
-            
+
             if self.source.get("name") == "local":
                 actions_config = {
                     "galloper_artifact": {
@@ -163,7 +165,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
                     log.warning(f'Cannot find processor config rpc for {processor_name}')
 
 
-            tholds = {}    
+            tholds = {}
             for threshold in thresholds:
                 if int(threshold['value']) > -1:
                     tholds[threshold['name'].capitalize()] = {
@@ -174,7 +176,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
             processing_config["quality_gate_sast"] = {
                 "thresholds": tholds
             }
-        
+
             #
             # Reporters
             #
@@ -204,26 +206,22 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
                 },
             }
             reporters_config["centry_status"] = {
-                "url": secrets_tools.unsecret(
+                "url": vault_client.unsecret(
                     "{{secret.galloper_url}}",
-                    project_id=self.project_id
                 ),
-                "token": secrets_tools.unsecret(
+                "token": vault_client.unsecret(
                     "{{secret.auth_token}}",
-                    project_id=self.project_id
                 ),
                 "project_id": str(self.project_id),
                 "test_id": str(self.results_test_id),
             }
 
             reporters_config["centry"] = {
-                "url": secrets_tools.unsecret(
+                "url": vault_client.unsecret(
                     "{{secret.galloper_url}}",
-                    project_id=self.project_id
                 ),
-                "token": secrets_tools.unsecret(
+                "token": vault_client.unsecret(
                     "{{secret.auth_token}}",
-                    project_id=self.project_id
                 ),
                 "project_id": str(self.project_id),
                 "test_id": str(self.results_test_id),
@@ -259,31 +257,26 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
         # container = f"getcarrier/sast_local"
         parameters = {
             "cmd": f"run -b centry:{job_type}_{self.test_uid} -s {job_type}",
-            "GALLOPER_URL": secrets_tools.unsecret(
+            "GALLOPER_URL": vault_client.unsecret(
                 "{{secret.galloper_url}}",
-                project_id=self.project_id
             ),
             "GALLOPER_PROJECT_ID": f"{self.project_id}",
-            "GALLOPER_AUTH_TOKEN": secrets_tools.unsecret(
+            "GALLOPER_AUTH_TOKEN": vault_client.unsecret(
                 "{{secret.auth_token}}",
-                project_id=self.project_id
             ),
         }
         if self.source.get("name") == "local":
             parameters["code_path"] = self.source.get("path")
 
         cc_env_vars = {
-            "RABBIT_HOST": secrets_tools.unsecret(
+            "RABBIT_HOST": vault_client.unsecret(
                 "{{secret.rabbit_host}}",
-                project_id=self.project_id
             ),
-            "RABBIT_USER": secrets_tools.unsecret(
+            "RABBIT_USER": vault_client.unsecret(
                 "{{secret.rabbit_user}}",
-                project_id=self.project_id
             ),
-            "RABBIT_PASSWORD": secrets_tools.unsecret(
+            "RABBIT_PASSWORD": vault_client.unsecret(
                 "{{secret.rabbit_password}}",
-                project_id=self.project_id
             ),
             "REPORT_ID": str(self.results_test_id),
             "build_id": str(self.build_id),
@@ -297,8 +290,8 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
                 docker_run = f"docker run --rm -i -t -v \"{self.source.get('path')}:/code\""
             return f"{docker_run} " \
                    f"-e project_id={self.project_id} " \
-                   f"-e galloper_url={secrets_tools.unsecret('{{secret.galloper_url}}', project_id=self.project_id)} " \
-                   f"-e token=\"{secrets_tools.unsecret('{{secret.auth_token}}', project_id=self.project_id)}\" " \
+                   f"-e galloper_url={vault_client.unsecret('{{secret.galloper_url}}')} " \
+                   f"-e token=\"{vault_client.unsecret('{{secret.auth_token}}')}\" " \
                    f"getcarrier/control_tower:{constants.CURRENT_RELEASE} " \
                    f"-tid {self.test_uid}"
 
