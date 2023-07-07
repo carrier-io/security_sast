@@ -33,7 +33,7 @@ def run_test(test: SecurityTestsSAST, config_only=False) -> dict:
     if config_only:
         return event[0]
 
-    resp = TaskManager(test.project_id)(event)
+    resp = TaskManager(test.project_id).run_task(event)
     resp['redirect'] = f'/task/{resp["task_id"]}/results'  # todo: where this should lead to?
 
     test.rpc.call.increment_statistics(test.project_id, 'sast_scans')
