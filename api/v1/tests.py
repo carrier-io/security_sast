@@ -83,8 +83,11 @@ class API(Resource):
 
         schedules = test_data.pop('scheduling', [])
         log.info(test_data)
-        test = SecurityTestsSAST(**test_data)
-        test.insert()
+        try:
+            test = SecurityTestsSAST(**test_data)
+            test.insert()
+        except Exception as e:
+            return {"ok": False, "error": str(e)}, 400
 
         test.handle_change_schedules(schedules)
 
