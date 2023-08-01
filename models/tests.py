@@ -27,7 +27,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
     project_id = Column(Integer, unique=False, nullable=False)
     project_name = Column(String(64), nullable=False)
     test_uid = Column(String(64), unique=True, nullable=False)
-    name = Column(String(128), nullable=False)
+    name = Column(String(128), nullable=False, unique=True)
     description = Column(String(256), nullable=True, unique=False)
     test_parameters = Column(ARRAY(JSON), nullable=True)
     integrations = Column(JSON, nullable=True)
@@ -85,7 +85,6 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
             from flask import current_app
             global_sast_settings = dict()
             global_sast_settings["max_concurrent_scanners"] = 1
-            loki_settings = current_app.config["CONTEXT"].settings["loki"]
 
             actions_config = {}
             if "git_" in self.source.get("name"):
@@ -198,7 +197,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
 
 
             reporters_config["centry_loki"] = {
-                "url": loki_settings["url"],
+                "url": "{{secret.loki_host}}",
                 "labels": {
                     "project": str(self.project_id),
                     "build_id": str(self.build_id),

@@ -1,12 +1,7 @@
-import json
-import gzip
-
 import flask
 from flask import make_response
 from flask_restful import Resource
-from pylon.core.tools import log
-from pylon.core.seeds.minio import MinIOHelper
-from ....shared.tools.constants import APP_HOST
+from tools import LokiLogFetcher
 from ...models.results import SecurityResultsSAST
 
 
@@ -23,14 +18,13 @@ class API(Resource):
         if not result_key:  # or key not in state:
             return make_response({"message": ""}, 404)
 
-        build_id = SecurityResultsSAST.query.get_or_404(result_key).build_id
-
-        websocket_base_url = APP_HOST.replace("http://", "ws://").replace("https://", "wss://")
-        websocket_base_url += "/loki/api/v1/tail"
-        logs_query = "{" + f'report_id="{result_key}",project="{project_id}",build_id="{build_id}"' + "}"
+        project = self.module.context.rpc_manager.call.project_get_or_404(project_id=project_id)
+        websocket_base_url = LokiLogFetcher.from_project(project).get_websocket_url(project)
 
         logs_start = 0
         logs_limit = 10000000000
+        build_id = SecurityResultsSAST.query.get_or_404(result_key).build_id
+        logs_query = "{" + f'report_id="{result_key}",project="{project_id}",build_id="{build_id}"' + "}"
 
         return make_response(
             {"websocket_url": f"{websocket_base_url}?query={logs_query}&start={logs_start}&limit={logs_limit}"},
