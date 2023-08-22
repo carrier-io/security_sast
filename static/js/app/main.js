@@ -29,7 +29,7 @@ var tableFormatters = {
             case 'processing started':
             case 'processing finished':
             case 'reporting started':
-            case 'reporting finished': 
+            case 'reporting finished':
             case 'pending...':
                 return `<div style="color: var(--basic)"><i class="fas fa-spinner fa-spin fa-secondary"></i> ${value}</div>`
             default:
@@ -49,7 +49,7 @@ var tableFormatters = {
                 <i class="icon__18x18 icon-menu-dots"></i>
             </button>
             <ul class="dropdown-menu">
-                <li class="dropdown-menu_item dropdown-item d-flex align-items-center">
+                <!--<li class="dropdown-menu_item dropdown-item d-flex align-items-center">
                     <span class="w-100 font-h5 d-flex align-items-center"><i class="icon__18x18 icon-integrate mr-1"></i>Integrate with</span>
                     <i class="icon__16x16 icon-sort"></i>
                     <ul class="submenu dropdown-menu">
@@ -66,7 +66,7 @@ var tableFormatters = {
                             <span class="w-100 font-h5">Test UID</span>
                         </li>
                     </ul>
-                </li>
+                </li>-->
                 <li class="dropdown-menu_item dropdown-item d-flex align-items-center test_edit" id="test_settings">
                     <i class="icon__18x18 icon-settings mr-2"></i><span class="w-100 font-h5">Settings</span>
                 </li>
@@ -75,7 +75,7 @@ var tableFormatters = {
                 </li>
             </ul>
         </div>
-        
+
     </div>`
     },
     tests_tools(value) {
@@ -88,7 +88,7 @@ var tableFormatters = {
     },
     application_urls(value, row, index) {
         const enable_tooltip = JSON.stringify(value).length > 42  // because 42
-        return `<div 
+        return `<div
                     style="
                         max-width: 240px;
                         text-overflow: ellipsis;
@@ -96,7 +96,7 @@ var tableFormatters = {
                         overflow: hidden;
                     "
                     ${enable_tooltip && 'data-toggle="infotip"'}
-                    data-placement="top" 
+                    data-placement="top"
                     title='${value}'
                 >${value}</div>`
     },
@@ -127,7 +127,7 @@ var artifactActions = {
             url = artifactActions.base_url('artifacts', 'artifact') + `/${bucketName}/${filename}`
             await axios.delete(url)
         } catch (err) {
-            errorHandler()          
+            errorHandler()
         }
     },
     deleteBucket: async (bucketName, errorHandler=()=>{}) => {
@@ -135,7 +135,7 @@ var artifactActions = {
             url = artifactActions.base_url('artifacts', 'buckets')
             await axios.delete(url, {
                 params: {
-                    'name': bucketName 
+                    'name': bucketName
                 }
             })
         }catch(err){
@@ -158,7 +158,7 @@ var artifactActions = {
             return data['item']
         } catch(err){
             errorHandler()
-        }        
+        }
     },
 }
 
@@ -223,7 +223,7 @@ var apiActions = {
         )[0]
         return currentValue
     },
-    
+
     handleFileUploading: async (data, testUID=null) => {
         if (data['source']['name'] != "artifact"){
             if (testUID){
@@ -235,7 +235,7 @@ var apiActions = {
                         $("#security_test_save").removeClass("disabled updating")
                         $("#security_test_save_and_run").removeClass("disabled updating")
                     })
-                }   
+                }
             }
             return data
         }
@@ -270,7 +270,7 @@ var apiActions = {
 
         if (fileMeta == null)
             return
- 
+
         data['source']['name'] = "artifact"
         data['source']['file_meta'] = fileMeta
         data['source']['file'] = fileMeta['filename']
