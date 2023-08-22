@@ -197,7 +197,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
 
 
             reporters_config["centry_loki"] = {
-                "url": "{{secret.loki_host}}",
+                "url": vault_client.unsecret("{{secret.loki_host}}"),
                 "labels": {
                     "project": str(self.project_id),
                     "build_id": str(self.build_id),
