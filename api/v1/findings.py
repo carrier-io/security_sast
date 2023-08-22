@@ -137,14 +137,17 @@ class API(Resource):
                 issues = SecurityReport.query.filter(
                     and_(SecurityReport.project_id == project_id,
                          SecurityReport.issue_hash == finding["issue_hash"],
-                         or_(SecurityReport.status == "False_Positive",
-                             SecurityReport.status == "Ignored")
+                         or_(SecurityReport.status == "false_positive",
+                             SecurityReport.status == "ignored",
+                             SecurityReport.status == "valid")
                          )).all()
-                false_positive = sum([1 for issue in issues if issue.status == "False_Positive"])
-                excluded_finding = sum([1 for issue in issues if issue.status == "Ignored"])
+                false_positive = sum([1 for issue in issues if issue.status == "false_positive"])
+                excluded_finding = sum([1 for issue in issues if issue.status == "ignored"])
+                valid_finding = sum([1 for issue in issues if issue.status == "valid"])
 
-                finding["status"] = "False_Positive" if false_positive > 0 else "Not_defined"
-                finding["status"] = "Ignored" if excluded_finding > 0 else "Not_defined"
+                finding["status"] = "false_positive" if false_positive > 0 else "not_defined"
+                finding["status"] = "ignored" if excluded_finding > 0 else "not_defined"
+                finding["status"] = "valid" if valid_finding > 0 else "not_defined"
 
                 # TODO: wrap this to try-except or delete from requests
                 for k in ['false_positive', 'excluded_finding', 'info_finding']:

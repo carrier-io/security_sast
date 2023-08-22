@@ -38,7 +38,7 @@ class API(Resource):
         test.set_test_status(test_status)
         self.sio.emit("result_status_updated", {"status": test_status, 'result_id': test_id})
 
-        if test_status['status'].lower().startswith('finished'):
+        if test_status['status'].lower() in ['finished', 'passed', 'failed']:
             test.update_severity_counts()
             test.update_status_counts()
             test.update_findings_counts()
