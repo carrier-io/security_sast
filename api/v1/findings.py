@@ -145,9 +145,13 @@ class API(Resource):
                 excluded_finding = sum([1 for issue in issues if issue.status == "ignored"])
                 valid_finding = sum([1 for issue in issues if issue.status == "valid"])
 
-                finding["status"] = "false_positive" if false_positive > 0 else "not_defined"
-                finding["status"] = "ignored" if excluded_finding > 0 else "not_defined"
-                finding["status"] = "valid" if valid_finding > 0 else "not_defined"
+                finding["status"] = "not_defined"
+                if false_positive > 0:
+                    finding["status"] = "false_positive"
+                elif excluded_finding > 0:
+                    finding["status"] = "ignored"
+                elif valid_finding > 0:
+                    finding["status"] = "valid"
 
                 # TODO: wrap this to try-except or delete from requests
                 for k in ['false_positive', 'excluded_finding', 'info_finding']:
