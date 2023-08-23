@@ -133,25 +133,17 @@ class API(Resource):
             if issue:
                 finding['severity'] = issue.severity
             if not (finding.get("false_positive") == 1 or finding.get("excluded_finding") == 1):
-                # todo: query sum from db?
-                issues = SecurityReport.query.filter(
+                recent_issue = SecurityReport.query.filter(
                     and_(SecurityReport.project_id == project_id,
-                         SecurityReport.issue_hash == finding["issue_hash"],
-                         or_(SecurityReport.status == "false_positive",
-                             SecurityReport.status == "ignored",
-                             SecurityReport.status == "valid")
-                         )).all()
-                false_positive = sum([1 for issue in issues if issue.status == "false_positive"])
-                excluded_finding = sum([1 for issue in issues if issue.status == "ignored"])
-                valid_finding = sum([1 for issue in issues if issue.status == "valid"])
+                         SecurityReport.issue_hash == finding["issue_hash"]
+                         )).order_by(SecurityReport.id.desc()).first()
 
-                finding["status"] = "not_defined"
-                if false_positive > 0:
-                    finding["status"] = "false_positive"
-                elif excluded_finding > 0:
-                    finding["status"] = "ignored"
-                elif valid_finding > 0:
-                    finding["status"] = "valid"
+                if recent_issue:
+                    recent_status = recent_issue.status
+                else:
+                    recent_status = "not_defined"
+
+                finding["status"] = recent_status
 
                 # TODO: wrap this to try-except or delete from requests
                 for k in ['false_positive', 'excluded_finding', 'info_finding']:
