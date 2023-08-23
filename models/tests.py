@@ -253,7 +253,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
             return dusty_config
         #
         job_type = "sast"
-        container = f"getcarrier/{job_type}:latest"
+        container = f"getcarrier/{job_type}:beta-2.0"
         # container = f"getcarrier/sast_local"
         parameters = {
             "cmd": f"run -b centry:{job_type}_{self.test_uid} -s {job_type}",
