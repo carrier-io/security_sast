@@ -16,7 +16,7 @@ from json import dumps
 from queue import Empty
 from typing import List, Union
 from sqlalchemy import Column, Integer, String, ARRAY, JSON, and_
-from tools import rpc_tools, db, db_tools, constants, VaultClient
+from tools import rpc_tools, db, db_tools, constants, VaultClient, context
 from pylon.core.tools import log  # pylint: disable=E0611,E0401
 
 
@@ -77,6 +77,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
 
     def configure_execution_json(self, output="cc", execution=False, thresholds={}):
         """ Create configuration for execution """
+        descriptor = context.module_manager.descriptor.security_sast
         #
         vault_client = VaultClient.from_project(self.project_id)
         #
@@ -253,7 +254,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
             return dusty_config
         #
         job_type = "sast"
-        container = f"getcarrier/{job_type}:latest"
+        container = descriptor.config.get("sast_image", f"getcarrier/{job_type}:latest")
         # container = f"getcarrier/sast_local"
         parameters = {
             "cmd": f"run -b centry:{job_type}_{self.test_uid} -s {job_type}",
