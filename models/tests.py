@@ -289,11 +289,16 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
             docker_run = f"docker run --rm -i -t"
             if self.source.get('name') == 'local':
                 docker_run = f"docker run --rm -i -t -v \"{self.source.get('path')}:/code\""
+            #
+            control_tower = descriptor.config.get(
+                "control_tower_image", f"getcarrier/control_tower:{constants.CURRENT_RELEASE}"
+            )
+            #
             return f"{docker_run} " \
                    f"-e project_id={self.project_id} " \
                    f"-e galloper_url={vault_client.unsecret('{{secret.galloper_url}}')} " \
                    f"-e token=\"{vault_client.unsecret('{{secret.auth_token}}')}\" " \
-                   f"getcarrier/control_tower:{constants.CURRENT_RELEASE} " \
+                   f"{control_tower} " \
                    f"-tid {self.test_uid}"
 
 
