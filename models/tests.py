@@ -286,11 +286,11 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
         # container = f"getcarrier/sast_local"
         parameters = {
             "cmd": f"run -b centry:{job_type}_{self.test_uid} -s {job_type}",
-            "galloper_url": vault_client.unsecret(
+            "GALLOPER_URL": vault_client.unsecret(
                 "{{secret.galloper_url}}",
             ),
-            "project_id": f"{self.project_id}",
-            "token": vault_client.unsecret(
+            "GALLOPER_PROJECT_ID": f"{self.project_id}",
+            "GALLOPER_AUTH_TOKEN": vault_client.unsecret(
                 "{{secret.auth_token}}",
             ),
         }
