@@ -228,6 +228,34 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
                 "test_id": str(self.results_test_id),
             }
 
+            reporters_config["junit"] = {
+                "file": "/tmp/{project_name}_{testing_type}_{scan_type}_{build_id}_report.xml",
+            }
+
+            reporters_config["centry_junit_report"] = {
+                "url": vault_client.unsecret(
+                    "{{secret.galloper_url}}",
+                ),
+                "token": vault_client.unsecret(
+                    "{{secret.auth_token}}",
+                ),
+                "project_id": str(self.project_id),
+                "bucket": "sast",
+                "object": f"{self.test_uid}_junit_report.xml",
+            }
+
+            reporters_config["centry_quality_gate_report"] = {
+                "url": vault_client.unsecret(
+                    "{{secret.galloper_url}}",
+                ),
+                "token": vault_client.unsecret(
+                    "{{secret.auth_token}}",
+                ),
+                "project_id": str(self.project_id),
+                "bucket": "sast",
+                "object": f"{self.test_uid}_quality_gate_report.json",
+            }
+
             dusty_config = {
                 "config_version": 2,
                 "suites": {
@@ -299,8 +327,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
                    f"-e galloper_url={vault_client.unsecret('{{secret.galloper_url}}')} " \
                    f"-e token=\"{vault_client.unsecret('{{secret.auth_token}}')}\" " \
                    f"{control_tower} " \
-                   f"-tid {self.test_uid}"
-
+                   f"-tid {self.test_uid} -qg"
 
         if output == "cc":
             channel = self.scan_location
