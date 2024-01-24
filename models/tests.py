@@ -317,6 +317,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
             "REPORT_ID": str(self.results_test_id),
             "build_id": str(self.build_id),
             "project_id": str(self.project_id),
+            "AWS_LAMBDA_FUNCTION_TIMEOUT": str(60*60*6),
         })
         concurrency = 1
         #
