@@ -17,6 +17,7 @@ from queue import Empty
 from typing import List, Union
 from sqlalchemy import Column, Integer, String, ARRAY, JSON, and_
 from tools import rpc_tools, db, db_tools, constants, VaultClient, context
+from tools import TaskManager
 from pylon.core.tools import log  # pylint: disable=E0611,E0401
 
 
@@ -297,20 +298,26 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
         if self.source.get("name") == "local":
             parameters["code_path"] = self.source.get("path")
 
-        cc_env_vars = {
-            "RABBIT_HOST": vault_client.unsecret(
-                "{{secret.rabbit_host}}",
-            ),
-            "RABBIT_USER": vault_client.unsecret(
-                "{{secret.rabbit_user}}",
-            ),
-            "RABBIT_PASSWORD": vault_client.unsecret(
-                "{{secret.rabbit_password}}",
-            ),
+        try:
+            cc_env_vars = TaskManager.get_cc_env_vars()
+        except:  # pylint: disable=W0702
+            cc_env_vars = {
+                "RABBIT_HOST": vault_client.unsecret(
+                    "{{secret.rabbit_host}}",
+                ),
+                "RABBIT_USER": vault_client.unsecret(
+                    "{{secret.rabbit_user}}",
+                ),
+                "RABBIT_PASSWORD": vault_client.unsecret(
+                    "{{secret.rabbit_password}}",
+                ),
+            }
+
+        cc_env_vars.update({
             "REPORT_ID": str(self.results_test_id),
             "build_id": str(self.build_id),
             "project_id": str(self.project_id),
-        }
+        })
         concurrency = 1
         #
         if output == "docker":
