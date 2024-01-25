@@ -58,19 +58,38 @@ def write_test_run_logs_to_minio_bucket(test: SecurityResultsSAST, file_name='lo
     build_id = test.build_id
     test_name = test.test_name
     #
-    descriptor = context.module_manager.descriptor.security_sast
-    use_sio_logs = descriptor.config.get("use_sio_logs", False)
-    #
-    logs_query = "{" + f'report_id="{result_key}",project="{project_id}",build_id="{build_id}"' + "}"
-    #
     enc = 'utf-8'
     file_output = BytesIO()
     file_output.write(f'Test {test_name} (id={test.test_id}) run log:\n'.encode(enc))
-    llf = LokiLogFetcher.from_project(project_id)
+    #
+    descriptor = context.module_manager.descriptor.security_sast
+    use_sio_logs = descriptor.config.get("use_sio_logs", False)
+    #
+    if use_sio_logs:
+        labels = {
+            "project": f"{project_id}",
+            "report_id": f"{result_key}",
+            "build_id": f"{build_id}",
+        }
+        try:
+            logs = context.rpc_manager.timeout(5).logging_hub_fetch_logs(labels)
+            for record in logs:
+                file_output.write(f'{record["line"]}\n'.encode(enc))
+        except:
+            log.warning('Request to logging hub failed with error %s', format_exc())
+    else:
+        logs_query = "{" + f'report_id="{result_key}",project="{project_id}",build_id="{build_id}"' + "}"
+        llf = LokiLogFetcher.from_project(project_id)
+        #
+        try:
+            llf.fetch_logs(query=logs_query)
+            llf.to_file(file_output, enc=enc)
+        except:
+            log.warning('Request to loki failed with error %s', format_exc())
+    #
+    file_output.seek(0)
     #
     try:
-        llf.fetch_logs(query=logs_query)
-        llf.to_file(file_output, enc=enc)
         s3_settings = test.test_config.get(
             'integrations', {}).get('system', {}).get('s3_integration', {})
         minio_client = MinioClient.from_project_id(test.project_id, **s3_settings)
@@ -81,4 +100,4 @@ def write_test_run_logs_to_minio_bucket(test: SecurityResultsSAST, file_name='lo
         minio_client.upload_file(bucket_name, file_output, file_name)
         return file_name
     except:
-        log.warning('Request to loki failed with error %s', format_exc())
+        log.warning('Uploading logs failed with error %s', format_exc())
