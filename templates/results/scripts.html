@@ -1,6 +1,10 @@
 <script src="{{ url_for('security_sast.static', filename='js/results/summary.js') }}"></script>
 <script src="{{ url_for('security_sast.static', filename='js/results/in_progress.js') }}"></script>
+{% if use_sio_logs %}
+<script src="{{ url_for('security_sast.static', filename='js/results/logs_sio.js') }}"></script>
+{% else %}
 <script src="{{ url_for('security_sast.static', filename='js/results/logs_updater.js') }}"></script>
+{% endif %}
 <script src="{{ url_for('security_sast.static', filename='js/results/results.js') }}"></script>
 <script src="{{ url_for('security_sast.static', filename='js/results/findings_table.js') }}"></script>
 <script src="{{ url_for('security_sast.static', filename='js/results/artifacts.js') }}"></script>

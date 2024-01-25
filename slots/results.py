@@ -28,13 +28,15 @@ class Slot:
     @slot('scripts')
     def scripts(self, context, slot, payload):
         log.info('slot: [%s] || payload: [%s]', slot, payload)
+        use_sio_logs = self.descriptor.config.get("use_sio_logs", False)
         result_id = payload.request.args.get('result_id')
         if result_id:
             test_data = self.results_or_404(result_id)
             with context.app.app_context():
                 return self.descriptor.render_template(
                     'results/scripts.html',
-                    test_data=test_data
+                    test_data=test_data,
+                    use_sio_logs=use_sio_logs
                 )
         return ''
 

@@ -5,7 +5,7 @@ from flask import request, make_response
 from flask_restful import Resource
 from pylon.core.tools import log
 from sqlalchemy import and_
-from tools import LokiLogFetcher, MinioClient
+from tools import LokiLogFetcher, MinioClient, context
 
 from ...models.results import SecurityResultsSAST
 # from ...models.security_reports import SecurityReport
@@ -57,6 +57,9 @@ def write_test_run_logs_to_minio_bucket(test: SecurityResultsSAST, file_name='lo
     project_id = test.project_id
     build_id = test.build_id
     test_name = test.test_name
+    #
+    descriptor = context.module_manager.descriptor.security_sast
+    use_sio_logs = descriptor.config.get("use_sio_logs", False)
     #
     logs_query = "{" + f'report_id="{result_key}",project="{project_id}",build_id="{build_id}"' + "}"
     #

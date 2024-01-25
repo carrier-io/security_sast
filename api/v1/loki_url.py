@@ -19,11 +19,24 @@ class API(Resource):
             return make_response({"message": ""}, 404)
 
         project = self.module.context.rpc_manager.call.project_get_or_404(project_id=project_id)
+        build_id = SecurityResultsSAST.query.get_or_404(result_key).build_id
+
+        use_sio_logs = self.module.descriptor.config.get("use_sio_logs", False)
+
+        if use_sio_logs:
+            return make_response(
+                {"labels": {
+                    "project": f"{project_id}",
+                    "report_id": f"{result_key}",
+                    "build_id": f"{build_id}",
+                }},
+                200
+            )
+
         websocket_base_url = LokiLogFetcher.from_project(project).get_websocket_url(project)
 
         logs_start = 0
         logs_limit = 10000000000
-        build_id = SecurityResultsSAST.query.get_or_404(result_key).build_id
         logs_query = "{" + f'report_id="{result_key}",project="{project_id}",build_id="{build_id}"' + "}"
 
         return make_response(
