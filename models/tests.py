@@ -18,6 +18,7 @@ from typing import List, Union
 from sqlalchemy import Column, Integer, String, ARRAY, JSON, and_
 from tools import rpc_tools, db, db_tools, constants, VaultClient, context
 from tools import TaskManager
+from tools import constants as c
 from pylon.core.tools import log  # pylint: disable=E0611,E0401
 
 
@@ -79,6 +80,7 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
     def configure_execution_json(self, output="cc", execution=False, thresholds={}):
         """ Create configuration for execution """
         descriptor = context.module_manager.descriptor.security_sast
+        use_sio_logs = descriptor.config.get("use_sio_logs", False)
         #
         vault_client = VaultClient.from_project(self.project_id)
         #
@@ -197,16 +199,34 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
                 except Empty:
                     log.warning(f'Cannot find reporter config rpc for {reporter_name}')
 
+            if use_sio_logs:
+                reporters_config["centry_logs"] = {
+                    "event_node": {
+                        "type": "RedisEventNode",
+                        "host": c.REDIS_HOST,
+                        "port": c.REDIS_PORT,
+                        "password": c.REDIS_PASSWORD,
+                        "event_queue": "centry_logs",
+                        "use_ssl": c.REDIS_USE_SSL,
+                    },
+                    "labels": {
+                        "project": str(self.project_id),
+                        "build_id": str(self.build_id),
+                        "report_id": str(self.results_test_id),
+                        "hostname": "dusty"
+                    },
+                }
+            else:
+                reporters_config["centry_loki"] = {
+                    "url": f'{vault_client.unsecret("{{secret.loki_host}}")}/loki/api/v1/push',
+                    "labels": {
+                        "project": str(self.project_id),
+                        "build_id": str(self.build_id),
+                        "report_id": str(self.results_test_id),
+                        "hostname": "dusty"
+                    },
+                }
 
-            reporters_config["centry_loki"] = {
-                "url": f'{vault_client.unsecret("{{secret.loki_host}}")}/loki/api/v1/push',
-                "labels": {
-                    "project": str(self.project_id),
-                    "build_id": str(self.build_id),
-                    "report_id": str(self.results_test_id),
-                    "hostname": "dusty"
-                },
-            }
             reporters_config["centry_status"] = {
                 "url": vault_client.unsecret(
                     "{{secret.galloper_url}}",
