@@ -102,15 +102,15 @@ class SecurityTestsSAST(db_tools.AbstractBaseMixin, db.Base, rpc_tools.RpcMixin)
                 }
 
                 if self.source.get("name") == "git_https":
-                    if self.source.get("username") != "":
-                        actions_config["git_clone"]["username"] = vault_client.unsecret(self.source.get("username"))
-                    if self.source.get("password") != "":
-                        actions_config["git_clone"]["password"] = vault_client.unsecret(self.source.get("password"))
+                    if self.source.get("repo_user") != "":
+                        actions_config["git_clone"]["username"] = vault_client.unsecret(self.source.get("repo_user"))
+                    if self.source.get("repo_pass") != "":
+                        actions_config["git_clone"]["password"] = vault_client.unsecret(self.source.get("repo_pass"))
 
                 if self.source.get("name") == "git_ssh":
-                    secret_value = vault_client.unsecret(self.source.get("private_key"))
+                    secret_value = vault_client.unsecret(self.source.get("repo_key"))
                     actions_config["git_clone"]["key_data"] = secret_value.replace("\n", "|")
-                    actions_config["git_clone"]["password"] = vault_client.unsecret(self.source.get("password"))
+                    actions_config["git_clone"]["password"] = vault_client.unsecret(self.source.get("repo_pass"))
 
 
             if self.source.get("name") == "artifact":
